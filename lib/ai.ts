@@ -5,6 +5,18 @@ import { MatchScore } from "./types";
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = "openrouter/free";
 
+function extractSentences(matches: MatchScore[], content: string): MatchScore[] {
+  return matches.map((m) => {
+    const name = m.profile.firstName;
+    const sentenceRegex = new RegExp(`(${name}[^.!?]*[.!?])`, "i");
+    const found = content.match(sentenceRegex);
+    if (found && found[1].trim().length > 3) {
+      return { ...m, explanation: found[1].trim(), aiEnhanced: true };
+    }
+    return m;
+  });
+}
+
 export async function enhanceMatchWithAI(
   matches: MatchScore[],
   customerName: string,
@@ -64,18 +76,16 @@ Only output the JSON array. No other text.`;
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       console.log("[ai] No JSON array in response, trying sentence extraction");
-      return matches.map((m, i) => {
-        const name = m.profile.firstName;
-        const sentenceRegex = new RegExp(`(${name}[^.!?]*[.!?])`, "i");
-        const found = content.match(sentenceRegex);
-        if (found) {
-          return { ...m, explanation: found[1].trim(), aiEnhanced: true };
-        }
-        return m;
-      });
+      return extractSentences(matches, content);
     }
 
-    const explanations: { id: number; explanation: string }[] = JSON.parse(jsonMatch[0]);
+    let explanations: { id: number; explanation: string }[];
+    try {
+      explanations = JSON.parse(jsonMatch[0]);
+    } catch {
+      console.log("[ai] JSON parse failed, trying sentence extraction");
+      return extractSentences(matches, content);
+    }
     console.log("[ai] Parsed explanations:", explanations);
 
     return matches.map((m, i) => {
