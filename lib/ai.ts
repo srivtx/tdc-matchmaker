@@ -52,9 +52,10 @@ Return ONLY a JSON array of objects with "id" (match index starting from 0) and 
 
     const data = await res.json();
     console.log("[ai] Raw response:", JSON.stringify(data).slice(0, 200));
-    const content = data.choices?.[0]?.message?.content;
+    const content = data.choices?.[0]?.message?.content
+      || data.choices?.[0]?.message?.reasoning;
     if (!content) {
-      console.log("[ai] No content in response");
+      console.log("[ai] No content or reasoning in response");
       return matches;
     }
 
