@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/assets/chain.jpg" alt="TDC Matchmaker" width="320" />
+  <img src="public/assets/chain-header.jpg" alt="TDC Matchmaker" width="400" />
 </p>
 
 <p align="center">
