@@ -17,15 +17,17 @@ export async function enhanceMatchWithAI(
 
   try {
     const topMatches = matches.slice(0, 5);
-    const prompt = `You are a matchmaking assistant for an Indian matrimonial service. For each match below, write one SHORT sentence (max 15 words) explaining why they are compatible.
+    const prompt = `You are ranking matches. Output EXACTLY this format — nothing else:
+
+[{"id":0,"explanation":"one sentence why compatible"},{"id":1,"explanation":"one sentence why compatible"},...]
 
 Customer: ${customerName}
 
 ${topMatches.map((m, i) =>
-  `Match ${i}: ${m.profile.firstName}, ${m.profile.city}, ${m.profile.religion}, ${m.profile.caste}, wants kids: ${m.profile.wantKids}, relocate: ${m.profile.openToRelocate}, hobbies: ${m.profile.hobbies.join(", ")}`
+  `Match ${i}: ${m.profile.firstName}, ${m.profile.city}, ${m.profile.religion}, ${m.profile.caste}, kids: ${m.profile.wantKids}, relocate: ${m.profile.openToRelocate}, hobbies: ${m.profile.hobbies.join(", ")}`
 ).join("\n")}
 
-Return ONLY a JSON array of objects with "id" (match index starting from 0) and "explanation" fields. No other text.`;
+Only output the JSON array. No other text.`;
 
     console.log("[ai] Calling OpenRouter...");
     const res = await fetch(OPENROUTER_BASE, {
@@ -61,8 +63,16 @@ Return ONLY a JSON array of objects with "id" (match index starting from 0) and 
 
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
-      console.log("[ai] No JSON in content:", content);
-      return matches;
+      console.log("[ai] No JSON array in response, trying sentence extraction");
+      return matches.map((m, i) => {
+        const name = m.profile.firstName;
+        const sentenceRegex = new RegExp(`(${name}[^.!?]*[.!?])`, "i");
+        const found = content.match(sentenceRegex);
+        if (found) {
+          return { ...m, explanation: found[1].trim(), aiEnhanced: true };
+        }
+        return m;
+      });
     }
 
     const explanations: { id: number; explanation: string }[] = JSON.parse(jsonMatch[0]);
