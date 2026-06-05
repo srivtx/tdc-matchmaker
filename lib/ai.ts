@@ -19,7 +19,8 @@ const PROVIDERS = {
 
 type Provider = keyof typeof PROVIDERS;
 
-function buildPrompt(customerName: string, topMatches: MatchScore[]): string {
+function buildPrompt(customerName: string, allMatches: MatchScore[]): string {
+  const topMatches = allMatches.slice(0, 5);
   return `Output EXACTLY this JSON format:
 [{"id":0,"explanation":"one sentence"},{"id":1,"explanation":"one sentence"},...]
 
@@ -50,8 +51,16 @@ async function callLLM(
 ): Promise<{ id: number; explanation: string }[] | null> {
   const cfg = PROVIDERS[provider];
   const apiKey = cfg.key();
-  if (!apiKey || apiKey.length < 10) return null;
+  
+  console.log(`[ai] ${provider} key:`, !!apiKey, "len:", apiKey?.length);
+  
+  if (!apiKey || apiKey.length < 10) {
+    console.log(`[ai] ${provider} no valid key`);
+    return null;
+  }
 
+  console.log(`[ai] ${provider} fetching ${cfg.url} with model ${cfg.model}`);
+  
   const res = await fetch(cfg.url, {
     method: "POST",
     headers: {
@@ -61,24 +70,50 @@ async function callLLM(
     body: JSON.stringify({
       model: cfg.model,
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 500,
+      max_tokens: 800,
       temperature: 0.7,
     }),
   });
 
-  if (!res.ok) return null;
+  console.log(`[ai] ${provider} status:`, res.status);
+  if (!res.ok) {
+    const text = await res.text();
+    console.log(`[ai] ${provider} error body:`, text.slice(0, 200));
+    return null;
+  }
 
   const data = await res.json();
   const content = data.choices?.[0]?.message?.content
     || data.choices?.[0]?.message?.reasoning;
+  console.log(`[ai] ${provider} content:`, !!content, content?.slice(0, 80));
   if (!content) return null;
 
   const jsonMatch = content.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) return null;
+  if (!jsonMatch) {
+    const partialMatch = content.match(/\[([\s\S]*)/);
+    if (partialMatch && partialMatch[1].includes('"explanation"')) {
+      const lastComma = partialMatch[1].lastIndexOf('"}');
+      if (lastComma > 0) {
+        const fixed = "[" + partialMatch[1].slice(0, lastComma + 2) + "]";
+        try {
+          const parsed = JSON.parse(fixed);
+          console.log(`[ai] ${provider} salvaged partial JSON:`, parsed.length, "items");
+          return parsed;
+        } catch {}
+      }
+    }
+    console.log(`[ai] ${provider} no JSON match`);
+    return null;
+  }
 
   try {
-    return JSON.parse(jsonMatch[0]);
-  } catch {
+    let jsonStr = jsonMatch[0];
+    jsonStr = jsonStr.replace(/"\s*\.\.\.\s*"/g, '"placeholder"');
+    const parsed: { id: number; explanation: string }[] = JSON.parse(jsonStr);
+    console.log(`[ai] ${provider} parsed:`, parsed.length, "items");
+    return parsed;
+  } catch (e) {
+    console.log(`[ai] ${provider} parse error`);
     return null;
   }
 }
