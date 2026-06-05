@@ -50,25 +50,15 @@ export default function CustomerDetailPage() {
     if (!customer || aiEnhanced) return;
     setAiEnhancing(true);
 
-    const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || "";
-    console.log("[AI] Key present:", !!apiKey, "length:", apiKey.length);
-    if (!apiKey || apiKey === "sk-or-v1-your-key-here" || apiKey.length < 10) {
-      show("warning", "No API key configured — AI enhancement skipped. Add NEXT_PUBLIC_OPENROUTER_API_KEY to .env.local");
-      setAiEnhancing(false);
-      return;
-    }
-
     try {
       const enhanced = await enhanceMatchWithAI(
         matches,
-        `${customer.firstName} ${customer.lastName}`,
-        apiKey
+        `${customer.firstName} ${customer.lastName}`
       );
 
       const enhancedCount = enhanced.filter((m) => m.aiEnhanced).length;
-      console.log("[AI] Enhanced count:", enhancedCount);
       if (enhancedCount === 0) {
-        show("warning", "AI returned no results — using standard scoring");
+        show("warning", "AI unavailable — using standard scoring. Add Groq or OpenRouter API key.");
         setAiEnhancing(false);
         return;
       }
@@ -76,8 +66,7 @@ export default function CustomerDetailPage() {
       setMatches(enhanced);
       setAiEnhanced(true);
       show("success", `AI-enhanced ${enhancedCount} match explanation${enhancedCount !== 1 ? "s" : ""}`);
-    } catch (e) {
-      console.error("[AI] Error:", e);
+    } catch {
       show("warning", "AI enhancement failed — using standard scoring");
     } finally {
       setAiEnhancing(false);
