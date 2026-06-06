@@ -105,6 +105,7 @@ export interface MatchScore {
   breakdown: MatchBreakdown;
   explanation: string;
   aiEnhanced?: boolean;
+  aiIntro?: string;
 }
 
 export interface MatchBreakdown {

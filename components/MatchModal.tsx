@@ -10,11 +10,12 @@ import { ProfileAvatar } from "./ProfileAvatar";
 interface Props {
   profile: PoolProfile;
   customerName: string;
+  aiIntro?: string;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-export function MatchModal({ profile, customerName, onClose, onConfirm }: Props) {
+export function MatchModal({ profile, customerName, aiIntro, onClose, onConfirm }: Props) {
   const age = calculateAge(profile.dateOfBirth);
 
   useEffect(() => {
@@ -118,14 +119,20 @@ export function MatchModal({ profile, customerName, onClose, onConfirm }: Props)
               <div className="h-px my-1" style={{ backgroundColor: 'var(--border-default)' }} />
               <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 <p className="mb-2">Dear {profile.firstName},</p>
-                <p className="mb-2">
-                  We hope this message finds you well. Based on your preferences and our compatibility assessment,
-                  we&apos;d like to introduce you to <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{customerName}</span>.
-                </p>
-                <p className="mb-2">
-                  We believe you share compatible values around family, education, and lifestyle.
-                  We think this could be a meaningful connection worth exploring.
-                </p>
+                {aiIntro ? (
+                  <p className="mb-2">{aiIntro}</p>
+                ) : (
+                  <p className="mb-2">
+                    We hope this message finds you well. Based on your preferences and our compatibility assessment,
+                    we&apos;d like to introduce you to <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{customerName}</span>.
+                  </p>
+                )}
+                {!aiIntro && (
+                  <p className="mb-2">
+                    We believe you share compatible values around family, education, and lifestyle.
+                    We think this could be a meaningful connection worth exploring.
+                  </p>
+                )}
                 <p className="mb-2">
                   If you&apos;re interested in learning more, simply reply to this email and
                   we&apos;ll facilitate the introduction at your convenience.

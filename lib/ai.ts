@@ -22,7 +22,9 @@ type Provider = keyof typeof PROVIDERS;
 function buildPrompt(customerName: string, allMatches: MatchScore[]): string {
   const topMatches = allMatches.slice(0, 5);
   return `Output EXACTLY this JSON format:
-[{"id":0,"explanation":"one sentence"},{"id":1,"explanation":"one sentence"},...]
+[{"id":0,"explanation":"one sentence why compatible","intro":"2-line email opening"},...]
+
+"explanation" is one short sentence why they match. "intro" is a warm 2-line email opening for the matchmaker to send (like "Hi [name], we think you and [customer] share...")
 
 Customer: ${customerName}
 
@@ -48,7 +50,7 @@ function extractSentences(matches: MatchScore[], content: string): MatchScore[] 
 async function callLLM(
   provider: Provider,
   prompt: string
-): Promise<{ id: number; explanation: string }[] | null> {
+): Promise<{ id: number; explanation: string; intro?: string }[] | null> {
   const cfg = PROVIDERS[provider];
   const apiKey = cfg.key();
   
@@ -133,7 +135,12 @@ export async function enhanceMatchWithAI(
       const result = matches.map((m, i) => {
         const enhanced = explanations.find(e => e.id === i);
         if (enhanced && enhanced.explanation) {
-          return { ...m, explanation: enhanced.explanation, aiEnhanced: true };
+          return {
+            ...m,
+            explanation: enhanced.explanation,
+            aiIntro: enhanced.intro || undefined,
+            aiEnhanced: true,
+          };
         }
         return m;
       });

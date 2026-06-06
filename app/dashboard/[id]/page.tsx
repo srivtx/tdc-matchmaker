@@ -243,6 +243,7 @@ export default function CustomerDetailPage() {
         <MatchModal
           profile={selectedMatch.profile}
           customerName={`${customer.firstName} ${customer.lastName}`}
+          aiIntro={selectedMatch.aiIntro}
           onClose={() => setSelectedMatch(null)}
           onConfirm={handleConfirmSend}
         />
