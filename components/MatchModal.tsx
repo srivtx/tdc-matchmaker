@@ -38,7 +38,7 @@ export function MatchModal({ profile, customerName, matchExplanation, cachedEmai
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 200,
+        max_tokens: 100,
         temperature: 0.7,
       }),
     });
@@ -61,9 +61,8 @@ export function MatchModal({ profile, customerName, matchExplanation, cachedEmai
       }
 
       const emailBody = await callGroq(
-        "Write a warm 3-sentence email introduction. Matchmaker is introducing " + customerName + " to " + profile.firstName + ". " +
-        "Compatibility: " + intro + " " +
-        "Keep it warm and professional. Write only the body, no salutation or sign-off."
+        "Write a brief 2-sentence email intro matchmaker sends to " + profile.firstName + " about meeting " + customerName + ". " +
+        "Compatibility: " + intro + " Keep it short, warm, professional. No salutation or sign-off."
       );
 
       setAiEmail(emailBody);
@@ -87,11 +86,11 @@ export function MatchModal({ profile, customerName, matchExplanation, cachedEmai
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="w-full max-w-lg block-elevated overflow-hidden"
+        className="w-full max-w-lg block-elevated overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border-default)' }}>
+        <div className="flex items-center justify-between p-5 border-b flex-shrink-0" style={{ borderColor: 'var(--border-default)' }}>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]" />
             <h3 className="font-mono text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Send Match Introduction</h3>
@@ -105,7 +104,7 @@ export function MatchModal({ profile, customerName, matchExplanation, cachedEmai
           </button>
         </div>
 
-        <div className="p-5 space-y-5">
+        <div className="p-5 space-y-5 overflow-y-auto">
           {/* Profile Summary Card */}
           <div
             className="flex items-center gap-4 p-4 rounded-xl border"
@@ -205,7 +204,7 @@ export function MatchModal({ profile, customerName, matchExplanation, cachedEmai
 
         {/* Footer */}
         <div
-          className="flex gap-3 p-5 border-t"
+          className="flex gap-3 p-5 border-t flex-shrink-0"
           style={{ backgroundColor: 'var(--bg-inset)', borderColor: 'var(--border-default)' }}
         >
           <button onClick={onClose} className="hud-button flex-1 !py-2.5 !text-xs">
