@@ -136,7 +136,7 @@ export default function LoginPage() {
 
           <div className="mt-6 pt-5 border-t border-white/5">
             <p
-              className="text-[10px] text-zinc-600 text-center font-mono select-all"
+              className="text-[10px] text-zinc-600 text-center font-mono"
               onMouseUp={() => {
                 const sel = window.getSelection()?.toString().trim() || "";
                 if (sel.includes("priya.sharma") || sel.includes("tdc2024")) {
