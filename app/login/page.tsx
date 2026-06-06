@@ -148,12 +148,12 @@ export default function LoginPage() {
               }}
             >
               Demo credentials: priya.sharma / tdc2024
-              {copied && (
-                <span className="ml-2 text-emerald-400 inline-flex items-center gap-1">
-                  <Check size={10} /> Copied
-                </span>
-              )}
             </p>
+            {copied && (
+              <p className="text-[10px] text-emerald-400 text-center font-mono mt-1 flex items-center justify-center gap-1">
+                <Check size={10} /> Copied to clipboard
+              </p>
+            )}
           </div>
         </div>
 
