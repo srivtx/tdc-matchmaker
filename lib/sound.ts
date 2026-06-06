@@ -20,7 +20,7 @@ export const sounds = {
     osc.frequency.setValueAtTime(400, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.06);
 
-    gain.gain.setValueAtTime(0.03, ctx.currentTime);
+    gain.gain.setValueAtTime(0.015, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
 
     osc.connect(gain);
@@ -40,7 +40,7 @@ export const sounds = {
     osc.frequency.setValueAtTime(600, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.02);
 
-    gain.gain.setValueAtTime(0.025, ctx.currentTime);
+    gain.gain.setValueAtTime(0.012, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
 
     osc.connect(gain);
