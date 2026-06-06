@@ -18,6 +18,13 @@ Groq runs the show here, llama 3.3 70B responding in like half a second with cle
 
 Static JSON was enough for 135 profiles and an MVP build. No point spinning up a database when the focus should be on the algorithm and the experience. Auth is mocked because the assignment called for a login screen and a gated dashboard, not a production identity system. The dashboard leans read heavy because matchmakers are scanning and matching, not editing profiles. Dark and light themes both got the full treatment because forcing dark mode on everyone is a choice and not a good one.
 
+## How It Looks
+
+<p align="center">
+  <img src="howitlooks.png" alt="Dark Mode" width="48%" />
+  <img src="howitlookslight.png" alt="Light Mode" width="48%" />
+</p>
+
 ## Submission Links
 
 | Item | Link |
