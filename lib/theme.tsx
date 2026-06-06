@@ -1,13 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { sounds } from "@/lib/sound";
 
 type Theme = "dark" | "light";
 
 interface ThemeContextType {
   theme: Theme;
-  toggle: () => void;
+  toggle: (event?: React.MouseEvent) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({ theme: "light", toggle: () => {} });
@@ -22,6 +22,31 @@ function applyTheme(theme: Theme) {
     root.classList.remove("dark");
   }
   localStorage.setItem("tdc-theme", theme);
+}
+
+function circularReveal(x: number, y: number, onReveal: () => void) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+    background: var(--bg-primary);
+    clip-path: circle(0 at ${x}px ${y}px);
+    transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+  `;
+  document.body.appendChild(overlay);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      onReveal();
+      overlay.style.clipPath = `circle(150vmax at ${x}px ${y}px)`;
+    });
+  });
+
+  setTimeout(() => {
+    overlay.style.opacity = "0";
+    overlay.style.transition = "opacity 0.2s ease";
+    setTimeout(() => overlay.remove(), 200);
+  }, 500);
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -42,18 +67,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyTheme(theme);
   }, [theme, mounted]);
 
-  const toggle = () => {
+  const toggle = useCallback((event?: React.MouseEvent) => {
     sounds.toggle();
     const next = theme === "dark" ? "light" : "dark";
 
-    if ("startViewTransition" in document) {
-      (document as any).startViewTransition(() => {
-        setTheme(next);
-      });
+    if (event) {
+      const x = event.clientX;
+      const y = event.clientY;
+      circularReveal(x, y, () => setTheme(next));
     } else {
       setTheme(next);
     }
-  };
+  }, [theme]);
 
   if (!mounted) {
     return <div style={{ visibility: "hidden" }}>{children}</div>;
