@@ -55,10 +55,10 @@ export function Nav() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={theme}
-                initial={{ rotate: -60, opacity: 0, scale: 0.6 }}
+                initial={{ rotate: -40, opacity: 0, scale: 0.7 }}
                 animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                exit={{ rotate: 60, opacity: 0, scale: 0.6 }}
-                transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                exit={{ rotate: 40, opacity: 0, scale: 0.7 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
               >
                 {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
               </motion.div>
