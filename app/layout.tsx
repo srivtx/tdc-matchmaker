@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/Toast";
 import { ThemeProvider } from "@/lib/theme";
+import SoundProvider from "@/components/SoundProvider";
 
 export const metadata: Metadata = {
   title: "TDC Matchmaker | Internal Dashboard",
@@ -24,10 +25,12 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <ToastProvider>
-              <DynamicNav />
-              <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-8">
-                {children}
-              </main>
+              <SoundProvider>
+                <DynamicNav />
+                <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-8">
+                  {children}
+                </main>
+              </SoundProvider>
             </ToastProvider>
           </AuthProvider>
         </ThemeProvider>

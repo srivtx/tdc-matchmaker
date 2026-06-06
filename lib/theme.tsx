@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { sounds } from "@/lib/sound";
 
 type Theme = "dark" | "light";
 
@@ -36,9 +37,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("tdc-theme", theme);
   }, [theme, mounted]);
 
-  const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const toggle = () => {
+    sounds.toggle();
+    setTheme((t) => (t === "dark" ? "light" : "dark"));
+  };
 
-  // Prevent flash of wrong theme
   if (!mounted) {
     return <div style={{ visibility: "hidden" }}>{children}</div>;
   }
