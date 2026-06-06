@@ -167,6 +167,14 @@ export default function CustomerDetailPage() {
                     Array.from({ length: 5 }).map((_, i) => (
                       <Skeleton key={i} className="h-[220px] w-full" />
                     ))
+                  ) : matches.length === 0 ? (
+                    <div className="py-10 text-center">
+                      <div className="w-10 h-10 rounded-full bg-neutral-800/50 flex items-center justify-center mx-auto mb-3">
+                        <Heart size={16} className="text-zinc-600" />
+                      </div>
+                      <p className="text-xs text-zinc-500">No matches found</p>
+                      <p className="text-[10px] text-zinc-600 mt-1">No opposite-gender profiles in the match pool</p>
+                    </div>
                   ) : (
                     matches.map((match, i) => (
                       <MatchCard
@@ -208,6 +216,14 @@ export default function CustomerDetailPage() {
               Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-[220px] w-full" />
               ))
+            ) : matches.length === 0 ? (
+              <div className="py-10 text-center bg-neutral-950/30 rounded-lg border border-white/5">
+                <div className="w-10 h-10 rounded-full bg-neutral-800/50 flex items-center justify-center mx-auto mb-3">
+                  <Heart size={16} className="text-zinc-600" />
+                </div>
+                <p className="text-xs text-zinc-500">No matches found</p>
+                <p className="text-[10px] text-zinc-600 mt-1">No opposite-gender profiles in the match pool</p>
+              </div>
             ) : (
               matches.map((match, i) => (
                 <MatchCard
