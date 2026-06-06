@@ -14,6 +14,8 @@ The engine scores every opposite gender profile on 10 weighted dimensions. Value
 
 Groq runs the show here, llama 3.3 70B responding in like half a second with clean JSON. OpenRouter's free tier sits as a backup if Groq ever goes down, and both call direct from the browser so there's no serverless timeout nonsense. When you click "Enhance with AI" it ships the top 5 matches to the LLM with a tight prompt, gets back a JSON array of explanations, and maps them right onto the match cards. If the model decides to ramble instead of returning JSON, a sentence extraction fallback scans the raw text for each profile name and salvages whatever context it can find. If absolutely everything fails the original deterministic explanations stay untouched so the user never sees a blank slate.
 
+**To test the AI:** Login with the demo creds, click any customer from the dashboard, then hit the "Enhance with AI" button in the match panel. The top 5 match cards will update with AI generated explanations (marked with a sparkle icon) in under a second. Click "Details" on any match card to see the full AI analysis alongside the radar chart and score breakdown.
+
 **Assumptions Made**
 
 Static JSON was enough for 135 profiles and an MVP build. No point spinning up a database when the focus should be on the algorithm and the experience. Auth is mocked because the assignment called for a login screen and a gated dashboard, not a production identity system. The dashboard leans read heavy because matchmakers are scanning and matching, not editing profiles. Dark and light themes both got the full treatment because forcing dark mode on everyone is a choice and not a good one.
