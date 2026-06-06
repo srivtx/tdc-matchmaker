@@ -136,16 +136,15 @@ export default function LoginPage() {
 
           <div className="mt-6 pt-5 border-t border-white/5">
             <p
-              className="text-[10px] text-zinc-600 text-center font-mono select-all cursor-pointer"
-              onMouseUp={async () => {
-                const sel = window.getSelection()?.toString().trim();
-                if (sel === "priya.sharma") { await navigator.clipboard.writeText("priya.sharma"); setCopied("user"); }
-                else if (sel === "tdc2024") { await navigator.clipboard.writeText("tdc2024"); setCopied("pass"); }
-                else if (sel.includes("priya") || sel.includes("tdc")) {
-                  await navigator.clipboard.writeText("priya.sharma / tdc2024");
-                  setCopied("user");
+              className="text-[10px] text-zinc-600 text-center font-mono select-all"
+              onMouseUp={() => {
+                const sel = window.getSelection()?.toString().trim() || "";
+                if (sel.includes("priya.sharma") || sel.includes("tdc2024")) {
+                  navigator.clipboard.writeText(sel).then(() => {
+                    setCopied("user");
+                    setTimeout(() => setCopied(null), 2000);
+                  }).catch(() => {});
                 }
-                setTimeout(() => setCopied(null), 2000);
               }}
             >
               Demo credentials: priya.sharma / tdc2024
