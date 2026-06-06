@@ -134,7 +134,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-white/5">
+          <div className="mt-6 pt-5 border-t border-white/5 relative">
             <p
               className="text-[10px] text-zinc-600 text-center font-mono"
               onMouseUp={() => {
@@ -149,11 +149,15 @@ export default function LoginPage() {
             >
               Demo credentials: priya.sharma / tdc2024
             </p>
-            {copied && (
-              <p className="text-[10px] text-emerald-400 text-center font-mono mt-1 flex items-center justify-center gap-1">
-                <Check size={10} /> Copied to clipboard
-              </p>
-            )}
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={copied ? { opacity: 1, y: 0 } : { opacity: 0, y: -4 }}
+              className="absolute left-1/2 -translate-x-1/2 mt-1 pointer-events-none"
+            >
+              <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                <Check size={10} /> Copied
+              </span>
+            </motion.div>
           </div>
         </div>
 
