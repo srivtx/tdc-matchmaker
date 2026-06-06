@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
-import { Heart, Eye, EyeOff, AlertCircle, Sparkles, Users, Target, Sun, Moon, Copy, Check } from "lucide-react";
+import { Heart, Eye, EyeOff, AlertCircle, Sparkles, Users, Target, Sun, Moon, Check } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 
 export default function LoginPage() {
@@ -17,12 +17,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { theme, toggle } = useTheme();
   const [copied, setCopied] = useState<"user" | "pass" | null>(null);
-
-  const copyToClipboard = async (text: string, which: "user" | "pass") => {
-    await navigator.clipboard.writeText(text);
-    setCopied(which);
-    setTimeout(() => setCopied(null), 2000);
-  };
 
   if (isAuthenticated) {
     router.replace("/dashboard");
@@ -141,23 +135,25 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-5 border-t border-white/5">
-            <p className="text-[10px] text-zinc-600 text-center font-mono">
-              Demo:{" "}
-              <button
-                onClick={() => copyToClipboard("priya.sharma", "user")}
-                className="inline-flex items-center gap-1 text-zinc-400 hover:text-white transition-colors"
-              >
-                priya.sharma
-                {copied === "user" && <Check size={10} className="text-emerald-400" />}
-              </button>
-              {" / "}
-              <button
-                onClick={() => copyToClipboard("tdc2024", "pass")}
-                className="inline-flex items-center gap-1 text-zinc-400 hover:text-white transition-colors"
-              >
-                tdc2024
-                {copied === "pass" && <Check size={10} className="text-emerald-400" />}
-              </button>
+            <p
+              className="text-[10px] text-zinc-600 text-center font-mono select-all cursor-pointer"
+              onMouseUp={async () => {
+                const sel = window.getSelection()?.toString().trim();
+                if (sel === "priya.sharma") { await navigator.clipboard.writeText("priya.sharma"); setCopied("user"); }
+                else if (sel === "tdc2024") { await navigator.clipboard.writeText("tdc2024"); setCopied("pass"); }
+                else if (sel.includes("priya") || sel.includes("tdc")) {
+                  await navigator.clipboard.writeText("priya.sharma / tdc2024");
+                  setCopied("user");
+                }
+                setTimeout(() => setCopied(null), 2000);
+              }}
+            >
+              Demo credentials: priya.sharma / tdc2024
+              {copied && (
+                <span className="ml-2 text-emerald-400 inline-flex items-center gap-1">
+                  <Check size={10} /> Copied
+                </span>
+              )}
             </p>
           </div>
         </div>
