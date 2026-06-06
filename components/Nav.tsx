@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
 import { Heart, LogOut, LayoutDashboard, Sun, Moon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Nav() {
   const pathname = usePathname();
@@ -51,7 +52,17 @@ export function Nav() {
             style={{ color: 'var(--text-tertiary)' }}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
-            {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={theme}
+                initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+              </motion.div>
+            </AnimatePresence>
           </button>
 
           <div className="flex items-center gap-2">
