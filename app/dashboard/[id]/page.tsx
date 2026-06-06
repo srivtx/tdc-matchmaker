@@ -30,6 +30,7 @@ export default function CustomerDetailPage() {
   const [aiEnhanced, setAiEnhanced] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<MatchScore | null>(null);
   const [breakdownMatch, setBreakdownMatch] = useState<MatchScore | null>(null);
+  const [generatedEmails, setGeneratedEmails] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!isAuthenticated) { router.replace("/login"); return; }
@@ -244,6 +245,11 @@ export default function CustomerDetailPage() {
           profile={selectedMatch.profile}
           customerName={`${customer.firstName} ${customer.lastName}`}
           matchExplanation={selectedMatch.aiEnhanced ? selectedMatch.explanation : undefined}
+          cachedEmail={generatedEmails[selectedMatch.profile.id]}
+          onEmailGenerated={(text) => setGeneratedEmails(prev => ({ ...prev, [selectedMatch.profile.id]: text }))}
+          onIntroGenerated={(intro) => setMatches(prev => prev.map(m =>
+            m.profile.id === selectedMatch.profile.id ? { ...m, explanation: intro, aiEnhanced: true } : m
+          ))}
           onClose={() => setSelectedMatch(null)}
           onConfirm={handleConfirmSend}
         />

@@ -53,7 +53,11 @@ NEXT_PUBLIC_GROQ_API_KEY=gsk_...
 NEXT_PUBLIC_OPENROUTER_API_KEY=sk-or-v1-...
 ```
 
-LLM generates personalized one-sentence explanations per match. Falls back gracefully to deterministic scoring when no keys are set.
+Two AI features:
+- **Match explanations** — "Enhance with AI" generates personalized compatibility analysis for top 5 matches
+- **Email intros** — Sparkle button in the Send Match modal writes custom email introductions per match, cached to avoid redundant calls
+
+Falls back gracefully to deterministic scoring when no keys are set.
 
 ## Stack
 

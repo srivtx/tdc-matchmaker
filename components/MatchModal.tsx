@@ -11,45 +11,63 @@ interface Props {
   profile: PoolProfile;
   customerName: string;
   matchExplanation?: string;
+  cachedEmail?: string;
+  onEmailGenerated?: (text: string) => void;
+  onIntroGenerated?: (intro: string) => void;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-export function MatchModal({ profile, customerName, matchExplanation, onClose, onConfirm }: Props) {
+export function MatchModal({ profile, customerName, matchExplanation, cachedEmail, onEmailGenerated, onIntroGenerated, onClose, onConfirm }: Props) {
   const age = calculateAge(profile.dateOfBirth);
-  const [aiEmail, setAiEmail] = useState<string | null>(null);
+  const [aiEmail, setAiEmail] = useState<string | null>(cachedEmail || null);
   const [enhancing, setEnhancing] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
+
+  const callGroq = async (prompt: string) => {
+    const key = process.env.NEXT_PUBLIC_GROQ_API_KEY || "";
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 200,
+        temperature: 0.7,
+      }),
+    });
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content?.trim() || "";
+  };
 
   const enhanceEmail = async () => {
     setEnhancing(true);
     try {
-      const key = (window as any).__GROQ_KEY__ || process.env.NEXT_PUBLIC_GROQ_API_KEY || "";
-      const prompt = `Write a warm, personalized 3-sentence email introduction. The matchmaker is introducing ${customerName} to ${profile.firstName}.
+      let intro = matchExplanation || "";
 
-About ${profile.firstName}: ${age} years old, ${profile.religion} ${profile.caste}, ${profile.designation} from ${profile.city}. Wants kids: ${profile.wantKids}. Relocate: ${profile.openToRelocate}. Hobbies: ${profile.hobbies?.join(", ") || "various"}.
-${matchExplanation ? `Compatibility note: ${matchExplanation}` : ""}
+      if (!intro) {
+        intro = await callGroq(
+          "Write ONE sentence why " + customerName + " and " + profile.firstName + " are a good match. " +
+          profile.firstName + ": " + age + "yr, " + profile.religion + ", " + profile.designation + " from " + profile.city + ". " +
+          "Only the sentence, nothing else."
+        );
+        onIntroGenerated?.(intro);
+      }
 
-Write ONLY the email body (no subject, no salutation, no sign-off). Keep it warm but professional.`;
+      const emailBody = await callGroq(
+        "Write a warm 3-sentence email introduction. Matchmaker is introducing " + customerName + " to " + profile.firstName + ". " +
+        "Compatibility: " + intro + " " +
+        "Keep it warm and professional. Write only the body, no salutation or sign-off."
+      );
 
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: 200,
-          temperature: 0.7,
-        }),
-      });
-
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content;
-      if (text) setAiEmail(text.trim());
+      setAiEmail(emailBody);
+      onEmailGenerated?.(emailBody);
     } finally {
       setEnhancing(false);
     }
@@ -154,27 +172,14 @@ Write ONLY the email body (no subject, no salutation, no sign-off). Keep it warm
                   we&apos;d like to introduce you to <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{customerName}</span>.
                 </p>
                 {aiEmail ? (
-                  <div className="mt-2 p-2.5 rounded-lg border border-rose-800/20 bg-rose-950/10 space-y-2">
-                    <p className="whitespace-pre-line">{aiEmail}</p>
-                    <button onClick={() => setAiEmail(null)} className="text-[10px] text-rose-400/60 hover:text-rose-400 transition-colors">Reset to default</button>
-                  </div>
+                  <p className="mb-2">{aiEmail}</p>
                 ) : (
-                  <>
-                    <p className="mb-2">
-                      We believe you share compatible values around family, education, and lifestyle.
-                      We think this could be a meaningful connection worth exploring.
-                    </p>
-                    <button
-                      onClick={enhanceEmail}
-                      disabled={enhancing}
-                      className="inline-flex items-center gap-1.5 mt-1 px-2.5 py-1.5 text-[10px] rounded-md border border-rose-800/40 bg-rose-950/20 text-rose-400 hover:border-rose-600/50 transition-all font-mono disabled:opacity-50"
-                    >
-                      {enhancing ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                      {enhancing ? "Writing..." : "Enhance with AI"}
-                    </button>
-                  </>
+                  <p className="mb-2">
+                    We believe you share compatible values around family, education, and lifestyle.
+                    We think this could be a meaningful connection worth exploring.
+                  </p>
                 )}
-                <p className="mb-2 mt-3">
+                <p className="mb-2">
                   If you&apos;re interested in learning more, simply reply to this email and
                   we&apos;ll facilitate the introduction at your convenience.
                 </p>
@@ -182,6 +187,17 @@ Write ONLY the email body (no subject, no salutation, no sign-off). Keep it warm
                   Warm regards,<br />
                   <span className="font-medium" style={{ color: 'var(--accent-rose)' }}>The Date Crew</span> Matchmaking Team
                 </p>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={enhanceEmail}
+                  disabled={enhancing}
+                  className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-rose-800/40 bg-rose-950/20 text-rose-400 hover:border-rose-600/50 transition-all disabled:opacity-50"
+                  title={aiEmail ? "Regenerate" : "Enhance with AI"}
+                >
+                    {enhancing ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+                </button>
               </div>
             </div>
           </div>
